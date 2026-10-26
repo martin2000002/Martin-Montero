@@ -20,6 +20,15 @@ export interface Deck extends DeckDefinition {
   source: 'tsx' | 'md'
 }
 
+/** A self-contained HTML deck from `content/html/<slug>/`, served as-is. */
+export interface HtmlPresentation {
+  slug: string
+  title: string
+  description?: string
+  date?: string
+  slideCount?: number
+}
+
 export type FileKind = 'pdf' | 'image' | 'video' | 'audio' | 'office' | 'other'
 
 export interface ContentFile {

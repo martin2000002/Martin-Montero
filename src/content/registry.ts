@@ -5,7 +5,8 @@
  * database and no upload API. Add a folder or drop a file, rebuild, deploy.
  */
 import { parseMarkdownDeck } from './markdown'
-import type { ContentFile, Deck, DeckDefinition, FileKind } from './types'
+import htmlPresentationMeta from 'virtual:html-presentations'
+import type { ContentFile, Deck, DeckDefinition, FileKind, HtmlPresentation } from './types'
 
 const tsxDecks = import.meta.glob<DeckDefinition>('/content/decks/*/deck.tsx', {
   eager: true,
@@ -75,6 +76,11 @@ function buildFiles(): ContentFile[] {
 
 export const decks = buildDecks()
 export const files = buildFiles()
+
+/** Discovered by build/html-presentations.ts (Vite plugin), not by a glob. */
+export const htmlPresentations: HtmlPresentation[] = [...htmlPresentationMeta].sort(
+  (a, b) => (b.date ?? '').localeCompare(a.date ?? '') || a.title.localeCompare(b.title),
+)
 
 export const findDeck = (slug: string) => decks.find((d) => d.slug === slug)
 export const findFile = (path: string) => files.find((f) => f.path === path)

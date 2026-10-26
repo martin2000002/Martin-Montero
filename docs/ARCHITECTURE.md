@@ -11,8 +11,10 @@
    contenido le entrega una función `renderSlide(index, size)`.
 4. **Lienzo fijo.** Las diapositivas se diseñan en 1920×1080 px y se escalan con
    `transform`. Lo que ves en tu pantalla es lo que se ve en el proyector.
-5. **Las URLs son un contrato.** Los links ya se compartieron, así que `/d/<slug>`,
+5. **Las URLs son un contrato.** Los links ya se compartieron, así que `/d/<slug>`, `/p/<slug>/`,
    `/f/<ruta>` y `#n` no se cambian sin dejar un redirect.
+6. **Lo que ya funciona no se reescribe.** Una presentación HTML hecha por fuera se publica byte a byte
+   (`content/html/`), no se porta al kit.
 
 ## Flujo de datos
 
@@ -20,8 +22,11 @@
 content/decks/*/deck.tsx ─┐
 content/decks/*/deck.md  ─┼─► src/content/registry.ts ─► decks[], files[]
 content/files/**/*       ─┘      (import.meta.glob)           │
+content/html/*/index.html ─► build/html-presentations.ts ─► htmlPresentations[] (virtual module)
+                               └─ dev: middleware · build: copia byte a byte a dist/p/<slug>/
                                                               ▼
-                       pages/HomePage   (galería, miniaturas)
+                       pages/HomePage   (galería, miniaturas; HTML → iframe escalado)
+                       /p/<slug>/       (fuera de la SPA: lo sirve Hosting directamente)
                        pages/DeckPage   ─► Player ◄─ renderSlide = ScaledSlide
                        pages/FilePage   ─► viewers/FileViewer
                                              ├─ pdf    ─► Player ◄─ renderSlide = PdfPage
@@ -36,7 +41,11 @@ content/files/**/*       ─┘      (import.meta.glob)           │
 content/                    ← lo ÚNICO que se toca para agregar contenido
   decks/<slug>/deck.tsx     deck en React (slug = nombre de la carpeta = URL)
   decks/<slug>/deck.md      deck en Markdown (+ imágenes al lado)
+  html/<slug>/index.html    presentación HTML autónoma (+ assets, + meta.json opcional), servida tal cual
   files/**                  PDFs, PPTX, imágenes, videos (con subcarpetas)
+
+build/
+  html-presentations.ts     plugin de Vite: sirve/copia content/html y expone su metadata
 
 src/
   app/          router.tsx (rutas), paths.ts (único lugar que construye URLs)
@@ -76,6 +85,7 @@ pages ─► viewers ─► player ─► ui
 | Un tema nuevo | Agregar `.deck-theme--<nombre>` en `deck.css` y el nombre en `ThemeName` (`content/types.ts`) |
 | Un layout nuevo | `SlideLayout` en `kit.tsx` + `.slide--<nombre>` en `deck.css` |
 | Soportar otro tipo de archivo | `FileKind` (types.ts) → `KIND_BY_EXT` (registry.ts) → `case` en `FileViewer.tsx` (+ miniatura en `HomePage`) |
+| Otro formato que debe publicarse sin procesar | Mismo patrón que `build/html-presentations.ts`: plugin que copia + módulo virtual con metadata |
 | Otra sintaxis de deck (p. ej. MDX) | Un glob + parser nuevo en `registry.ts` que devuelva `DeckDefinition` |
 | Una función del reproductor (notas del presentador, temporizador…) | `src/player/`, sin acoplarla a un tipo de contenido |
 

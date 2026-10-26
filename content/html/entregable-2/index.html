@@ -1,0 +1,917 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entregable 2 · Verificador físico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #f6f5f1;
+  --card: #ffffff;
+  --ink: #0e1a2b;
+  --text: #2b3444;
+  --muted: #69707d;
+  --hair: rgba(14, 26, 43, 0.10);
+  --navy: #15305a;
+  --navy-soft: #e8edf5;
+  --s1: #2a78d6;
+  --s2: #eb6834;
+  --s3: #1baf7a;
+  --rest: #c3c2b7;
+  --good: #0ca30c;
+  --good-ink: #0b6b2e;
+  --good-bg: #e7f5e9;
+  --warn: #fab219;
+  --warn-ink: #7a5200;
+  --warn-bg: #fdf3dc;
+  --crit: #d03b3b;
+  --crit-ink: #a12828;
+  --crit-bg: #fbe8e8;
+  --serif: "Source Serif 4", "Noto Serif", Georgia, serif;
+  --sans: "Inter", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { background: #0e1420; font-family: var(--sans); color: var(--text); overflow: hidden; -webkit-font-smoothing: antialiased; }
+.stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform: translate(-50%, -50%) scale(var(--scale, 0.5)); transform-origin: center; }
+.slide { position: absolute; inset: 0; background: var(--paper); padding: 92px 110px 110px; display: none; flex-direction: column; overflow: hidden; }
+.slide.active { display: flex; }
+.progress { position: absolute; top: 0; left: 0; height: 6px; background: var(--navy); transition: width .3s ease; }
+.foot { position: absolute; left: 110px; right: 110px; bottom: 40px; display: flex; justify-content: space-between; font-size: 18px; color: var(--muted); letter-spacing: .02em; }
+
+.kicker { display: flex; align-items: center; gap: 16px; font-size: 21px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--navy); margin-bottom: 18px; }
+.code { background: var(--navy); color: #fff; border-radius: 8px; padding: 5px 13px; letter-spacing: .04em; font-size: 21px; }
+h1, h2 { font-family: var(--serif); color: var(--ink); font-weight: 600; letter-spacing: -0.01em; }
+h2 { font-size: 54px; line-height: 1.12; max-width: 1600px; }
+.lead { font-size: 27px; line-height: 1.45; color: var(--text); max-width: 1500px; margin-top: 18px; }
+.card { background: var(--card); border: 1px solid var(--hair); border-radius: 18px; padding: 28px 32px; box-shadow: 0 1px 2px rgba(14,26,43,.04), 0 10px 28px rgba(14,26,43,.05); }
+.label { font-size: 18px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+.ink { color: var(--ink); }
+b, strong { color: var(--ink); font-weight: 600; }
+
+.status { display: inline-flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 600; border-radius: 999px; padding: 6px 14px 6px 10px; white-space: nowrap; }
+.status svg { width: 20px; height: 20px; flex: none; }
+.st-good { background: var(--good-bg); color: var(--good-ink); }
+.st-warn { background: var(--warn-bg); color: var(--warn-ink); }
+.st-crit { background: var(--crit-bg); color: var(--crit-ink); }
+.st-info { background: var(--navy-soft); color: var(--navy); }
+
+/* 1 · Cover */
+.cover { padding-top: 110px; }
+.inst { font-size: 21px; color: var(--muted); letter-spacing: .06em; margin-bottom: 44px; }
+.cover h1 { font-size: 64px; line-height: 1.1; max-width: 1560px; margin-top: 6px; }
+.authors { display: flex; gap: 72px; margin-top: 46px; }
+.authors .who { display: block; font-size: 32px; font-weight: 600; color: var(--ink); }
+.authors .role { display: block; font-size: 20px; color: var(--muted); margin-top: 4px; }
+.cover .meta { font-size: 21px; color: var(--muted); margin-top: 30px; }
+.hero { margin-top: auto; }
+.hero svg { width: 100%; height: auto; display: block; }
+.strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 22px; margin-top: auto; }
+.tile { border-radius: 14px; overflow: hidden; background: #8a8a8a; aspect-ratio: 5 / 4; position: relative; }
+.tile img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; display: block; }
+.tile .tag { position: absolute; left: 12px; bottom: 12px; background: rgba(14,26,43,.78); color: #fff; font-size: 17px; font-weight: 600; padding: 5px 11px; border-radius: 7px; }
+
+/* 2 · Thesis */
+.problem { display: grid; grid-template-columns: 1fr 360px; gap: 48px; align-items: center; margin-top: 22px; }
+.problem .lead { margin-top: 0; }
+.stat { text-align: left; }
+.stat .big { font-size: 76px; font-weight: 700; color: var(--ink); line-height: 1; }
+.stat .cap { font-size: 19px; color: var(--muted); line-height: 1.35; margin-top: 10px; }
+.flow { position: relative; display: grid; grid-template-columns: 1fr 44px 1.15fr 44px 1.25fr 44px 1.15fr 44px 1fr; align-items: stretch; margin-top: 64px; margin-bottom: 30px; }
+.flow .node { background: var(--card); border: 1px solid var(--hair); border-radius: 16px; padding: 22px 22px; box-shadow: 0 6px 20px rgba(14,26,43,.05); }
+.flow .node h3 { font-size: 24px; color: var(--ink); font-weight: 700; margin-bottom: 8px; }
+.flow .node p { font-size: 20px; line-height: 1.4; color: var(--text); }
+.flow .node.core { border: 2px solid var(--navy); }
+.arrow { display: flex; align-items: center; justify-content: center; }
+.arrow svg { width: 34px; height: 20px; }
+.bracket { position: absolute; top: -40px; height: 26px; border: 2px solid var(--navy); border-bottom: none; border-radius: 10px 10px 0 0; }
+.bracket span { position: absolute; top: -17px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 14px; font-size: 18px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--navy); }
+.checks { list-style: none; display: grid; gap: 6px; }
+.checks li { font-size: 19px; display: flex; gap: 10px; align-items: baseline; }
+.checks li b { display: inline-block; min-width: 34px; color: var(--navy); }
+.band { margin-top: auto; display: grid; grid-template-columns: 1.1fr 1fr 1fr 1fr; gap: 20px; }
+.band .key { background: var(--navy); color: #fff; border-radius: 16px; padding: 22px 26px; }
+.band .key .label { color: #b9c6dc; }
+.band .key p { font-size: 22px; line-height: 1.4; margin-top: 8px; color: #fff; }
+.hyp { background: var(--card); border: 1px solid var(--hair); border-radius: 16px; padding: 22px 24px; }
+.hyp .label { color: var(--navy); }
+.hyp p { font-size: 21px; line-height: 1.4; margin-top: 8px; }
+
+/* 3 · Activities */
+.acts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 28px; margin-top: 40px; }
+.act { display: grid; grid-template-columns: 74px 1fr auto; align-items: center; gap: 22px; background: var(--card); border: 1px solid var(--hair); border-radius: 16px; padding: 20px 24px; }
+.act .code { text-align: center; font-size: 22px; padding: 8px 0; }
+.act .name { font-size: 25px; font-weight: 600; color: var(--ink); }
+.act .res { font-size: 20px; color: var(--muted); margin-top: 4px; }
+.note { border-left: 5px solid var(--navy); background: var(--navy-soft); border-radius: 0 16px 16px 0; padding: 18px 24px; font-size: 20px; line-height: 1.45; color: var(--ink); display: flex; align-items: center; }
+.timeline { margin-top: auto; position: relative; display: grid; grid-template-columns: repeat(4, 1fr); padding-top: 34px; }
+.timeline::before { content: ""; position: absolute; top: 44px; left: 12.5%; right: 12.5%; height: 3px; background: var(--rest); }
+.tl { text-align: center; position: relative; }
+.tl .dot { width: 22px; height: 22px; border-radius: 50%; background: var(--paper); border: 3px solid var(--rest); margin: 0 auto 14px; position: relative; }
+.tl.now .dot { background: var(--navy); border-color: var(--navy); box-shadow: 0 0 0 7px rgba(21,48,90,.15); }
+.tl .d { font-size: 21px; font-weight: 700; color: var(--ink); }
+.tl .w { font-size: 18px; color: var(--muted); margin-top: 3px; }
+.tl.now .d, .tl.now .w { color: var(--navy); }
+
+/* 4 · A1-A3 */
+.three { display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 26px; margin-top: 40px; flex: 1; min-height: 0; }
+.three .card { display: flex; flex-direction: column; gap: 18px; }
+.chead { display: flex; align-items: center; gap: 14px; }
+.chead h3 { font-size: 27px; color: var(--ink); font-weight: 700; }
+.chead .code { font-size: 19px; }
+.sub { font-size: 20px; color: var(--muted); line-height: 1.4; }
+.ba { display: grid; gap: 12px; }
+.ba .row { display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: center; border-radius: 12px; padding: 14px 16px; font-size: 19px; line-height: 1.38; }
+.ba .row.before { background: var(--crit-bg); }
+.ba .row.after { background: var(--good-bg); }
+.ba .row .tagx { font-size: 16px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.ba .row.before .tagx { color: var(--crit-ink); }
+.ba .row.after .tagx { color: var(--good-ink); }
+.pair { display: grid; grid-template-columns: 1.25fr 1fr; gap: 14px; }
+.pair .n { font-size: 44px; font-weight: 700; color: var(--ink); line-height: 1.05; white-space: nowrap; }
+.pair .t { font-size: 18px; color: var(--muted); line-height: 1.35; margin-top: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { font-size: 18px; border: 1px solid var(--hair); border-radius: 999px; padding: 6px 14px; background: #fafaf8; color: var(--ink); }
+.chip i { font-style: normal; color: var(--muted); }
+.quote { font-family: var(--serif); font-size: 23px; line-height: 1.42; color: var(--ink); border-left: 4px solid var(--navy); padding-left: 18px; }
+.term { background: #0f1726; border-radius: 12px; padding: 20px 22px; font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace; font-size: 20px; color: #e6edf7; line-height: 1.6; }
+.term .c { color: #7f8ea6; }
+.term .p { color: #6fd39b; }
+.plain { list-style: none; display: grid; gap: 12px; }
+.plain li { font-size: 20px; line-height: 1.4; padding-left: 22px; position: relative; }
+.plain li::before { content: ""; position: absolute; left: 0; top: 11px; width: 8px; height: 8px; border-radius: 50%; background: var(--navy); }
+.push { margin-top: auto; }
+
+/* 5 · A4 */
+.fam { display: grid; grid-template-columns: repeat(5, 1fr); gap: 22px; margin-top: 28px; margin-bottom: 22px; }
+.fam figure { background: var(--card); border: 1px solid var(--hair); border-radius: 16px; overflow: hidden; }
+.fam .img { aspect-ratio: 4 / 3; background: #8a8a8a; overflow: hidden; }
+.fam .img img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; display: block; }
+.fam figcaption { padding: 16px 18px 18px; }
+.fam .fname { font-size: 22px; font-weight: 700; color: var(--ink); }
+.fam .law { font-size: 18px; color: var(--navy); font-weight: 600; margin-top: 2px; }
+.fam .err { font-size: 18px; color: var(--muted); margin-top: 8px; line-height: 1.35; }
+.a4bottom { display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: 22px; margin-top: auto; }
+.kpi .n { font-size: 60px; font-weight: 700; color: var(--ink); line-height: 1; }
+.kpi .t { font-size: 20px; color: var(--muted); margin-top: 10px; line-height: 1.35; }
+.kpi2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* 6 · A5 */
+.chain { display: flex; align-items: stretch; gap: 0; margin-top: 44px; }
+.grp { border-radius: 16px; padding: 16px 18px 18px; }
+.grp.ml { background: var(--navy-soft); }
+.grp.calc { background: #efeee9; margin-left: 18px; flex: 1; }
+.grp.calc .row { justify-content: space-between; }
+.grp .label { margin-bottom: 12px; display: block; }
+.grp .row { display: flex; align-items: center; }
+.stg { background: var(--card); border: 1px solid var(--hair); border-radius: 12px; padding: 12px 16px; min-width: 148px; }
+.stg .i { font-size: 16px; font-weight: 700; color: var(--navy); }
+.stg .s { font-size: 21px; font-weight: 700; color: var(--ink); }
+.stg .m { font-size: 16px; color: var(--muted); margin-top: 2px; }
+.sa { width: 26px; display: flex; justify-content: center; color: var(--muted); }
+.sa svg { width: 18px; height: 14px; }
+.panels { display: grid; grid-template-columns: 1fr 40px 1fr 40px 1fr 40px 1fr; align-items: center; margin-top: 40px; }
+.panels figure { text-align: left; }
+.panels .img { aspect-ratio: 5 / 4; border-radius: 14px; overflow: hidden; background: #8a8a8a; }
+.panels .img img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; display: block; }
+.panels figcaption { font-size: 20px; color: var(--ink); font-weight: 600; margin-top: 12px; }
+.panels figcaption span { display: block; font-weight: 400; color: var(--muted); font-size: 17px; margin-top: 2px; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: auto; }
+
+/* 7 · A6 stages */
+.a6 { display: grid; grid-template-columns: 1.35fr 1fr; gap: 34px; margin-top: 34px; flex: 1; min-height: 0; }
+.stages { display: grid; gap: 10px; align-content: start; }
+.srow { display: grid; grid-template-columns: 34px 180px 1fr 175px 140px; align-items: center; gap: 14px; background: var(--card); border: 1px solid var(--hair); border-radius: 12px; padding: 11px 18px; }
+.srow .i { font-size: 17px; font-weight: 700; color: var(--muted); }
+.srow .s { font-size: 22px; font-weight: 700; color: var(--ink); }
+.srow .m { font-size: 18px; color: var(--muted); }
+.srow .v { font-size: 26px; font-weight: 700; color: var(--ink); text-align: right; }
+.srow .status { justify-self: end; }
+.example { display: flex; flex-direction: column; gap: 16px; }
+.example .pics { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.example .img { aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden; background: #8a8a8a; }
+.example .img img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; display: block; }
+.example figcaption { font-size: 19px; color: var(--ink); font-weight: 600; margin-top: 10px; }
+.example figcaption span { display: block; font-weight: 400; color: var(--muted); font-size: 17px; }
+
+/* 8 · A6 attribution + real */
+.a6b { display: grid; grid-template-columns: 1.12fr 1fr; gap: 30px; margin-top: 34px; flex: 1; min-height: 0; }
+.a6b .card { display: flex; flex-direction: column; }
+.a6b h3, .a7 h3 { font-size: 25px; color: var(--ink); font-weight: 700; }
+.legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: 17px; color: var(--muted); margin-top: 8px; }
+.legend i { display: inline-block; width: 14px; height: 14px; border-radius: 4px; margin-right: 7px; vertical-align: -2px; }
+.chart text { font-family: var(--sans); }
+.waffle { display: grid; grid-template-columns: repeat(21, 24px); gap: 5px; margin-top: 14px; }
+.waffle i { width: 24px; height: 24px; border-radius: 5px; background: #d9d8d1; }
+.waffle i.fp { background: var(--crit); }
+.waffle i.ok { background: var(--good); display: flex; align-items: center; justify-content: center; }
+.waffle i.ok::after { content: "✓"; color: #fff; font-size: 16px; font-weight: 700; font-style: normal; }
+.realpics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.realpics img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 10px; display: block; }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.fact .n { font-size: 34px; font-weight: 700; color: var(--ink); }
+.fact .t { font-size: 17px; color: var(--muted); line-height: 1.35; }
+
+/* 9 · A7 */
+.a7 { display: grid; grid-template-columns: 520px 1fr; gap: 30px; margin-top: 34px; flex: 1; min-height: 0; }
+.kpis { display: grid; gap: 16px; align-content: start; }
+.kpis .card { padding: 22px 28px; }
+.kpis .n { font-size: 58px; font-weight: 700; color: var(--ink); line-height: 1; }
+.kpis .t { font-size: 19px; color: var(--muted); margin-top: 8px; line-height: 1.35; }
+
+/* 10 · Closing */
+.close { display: grid; grid-template-columns: 1fr 1.08fr; gap: 30px; margin-top: 30px; }
+.close .tk { padding: 14px 20px; }
+.cmp.tight td { padding: 6px 10px; }
+.road { margin-top: auto; }
+.road .rl { font-size: 16px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.road .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.rm { background: var(--card); border: 1px solid var(--hair); border-top: 5px solid var(--navy); border-radius: 14px; padding: 14px 22px 16px; display: flex; flex-direction: column; }
+.rm.last { border-top-color: var(--rest); }
+.rm .rh { display: flex; justify-content: space-between; align-items: center; }
+.rm .rh .d { font-size: 20px; font-weight: 700; color: var(--navy); }
+.rm .rh .pct { font-size: 16px; font-weight: 700; color: var(--navy); background: var(--navy-soft); padding: 3px 12px; border-radius: 999px; }
+.rm h4 { font-size: 23px; font-weight: 700; color: var(--ink); margin: 4px 0 10px; }
+.rm ul { list-style: none; display: grid; gap: 7px; }
+.rm li { display: grid; grid-template-columns: 56px 1fr; gap: 12px; align-items: center; font-size: 18px; line-height: 1.3; color: var(--text); }
+.rm li .code { font-size: 15px; text-align: center; padding: 3px 0; }
+.rm .hy { margin-top: 10px; font-size: 17px; font-weight: 600; color: var(--muted); }
+.take { display: grid; gap: 14px; align-content: start; }
+.tk { display: grid; grid-template-columns: 44px 1fr; gap: 16px; align-items: start; background: var(--card); border: 1px solid var(--hair); border-radius: 14px; padding: 18px 22px; }
+.tk .ic { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+.tk .ic svg { width: 24px; height: 24px; }
+.tk h4 { font-size: 22px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.tk p { font-size: 20px; line-height: 1.4; color: var(--text); }
+.tk.good .ic { background: var(--good-bg); color: var(--good-ink); }
+.tk.bad .ic { background: var(--crit-bg); color: var(--crit-ink); }
+.tk.next .ic { background: var(--navy-soft); color: var(--navy); }
+.cmp { width: 100%; border-collapse: collapse; font-size: 19px; }
+.cmp th { text-align: left; font-size: 16px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0 10px 10px; border-bottom: 2px solid var(--hair); }
+.cmp td { padding: 9px 10px; border-bottom: 1px solid var(--hair); color: var(--ink); font-variant-numeric: tabular-nums; }
+.cmp td:first-child { color: var(--text); }
+.cmp td.hl { color: var(--navy); font-weight: 700; }
+.steps { display: grid; gap: 12px; margin-top: 18px; }
+.step { display: grid; grid-template-columns: 70px 1fr; gap: 14px; align-items: start; }
+.step .code { text-align: center; font-size: 18px; padding: 6px 0; }
+.step p { font-size: 20px; line-height: 1.38; }
+
+/* Timer */
+.timer { position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.92); border: 1px solid var(--hair); border-radius: 999px; padding: 6px 8px 6px 18px; font-size: 18px; color: var(--muted); z-index: 5; box-shadow: 0 4px 14px rgba(14,26,43,.08); }
+.timer .t { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink); min-width: 52px; }
+.timer .bar { width: 120px; height: 6px; border-radius: 3px; background: #e4e3dd; overflow: hidden; }
+.timer .bar i { display: block; height: 100%; width: 0; background: var(--navy); border-radius: 3px; }
+.timer.late .bar i { background: var(--warn); }
+.timer.over .bar i { background: var(--crit); }
+.timer.over .t { color: var(--crit-ink); }
+.timer button { border: none; background: transparent; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--ink); cursor: pointer; }
+.timer button:hover { background: #eeede8; }
+.timer button svg { width: 18px; height: 18px; }
+.timer.hidden { display: none; }
+.timer .kbtn { font-size: 17px; font-weight: 700; font-family: var(--sans); color: var(--muted); border: 1px solid var(--hair); }
+.keys { position: absolute; left: 50%; bottom: 88px; transform: translateX(-50%); background: #fff; border: 1px solid var(--hair); border-radius: 16px; box-shadow: 0 14px 40px rgba(14,26,43,.16); padding: 22px 28px 20px; z-index: 6; display: none; min-width: 560px; }
+.keys.open { display: block; }
+.keys h4 { font-size: 16px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.keys table { border-collapse: collapse; width: 100%; }
+.keys td { font-size: 19px; padding: 6px 0; color: var(--text); vertical-align: middle; }
+.keys td:first-child { padding-right: 24px; white-space: nowrap; }
+.keys kbd { display: inline-block; min-width: 30px; text-align: center; font-family: var(--sans); font-size: 16px; font-weight: 600; color: var(--ink); background: #f3f2ee; border: 1px solid var(--hair); border-bottom-width: 2px; border-radius: 7px; padding: 3px 8px; margin-right: 4px; }
+
+
+/* E2 additions */
+.acts.e2 .act { grid-template-columns: 118px 1fr auto; padding: 18px 22px; }
+.acts.e2 .act .code { font-size: 17px; padding: 8px 0; }
+.acts.e2 .act .name { font-size: 24px; }
+.acts.e2 .act .res { font-size: 19px; }
+.ct { font-size: 25px; color: var(--ink); font-weight: 700; }
+.cols2 { display: grid; gap: 30px; margin-top: 34px; flex: 1; min-height: 0; }
+.cols2 > .card { display: flex; flex-direction: column; gap: 14px; }
+.c-a8 { grid-template-columns: 1fr 1.12fr; }
+.c-it { grid-template-columns: 1.35fr 1fr; }
+.c-ev { grid-template-columns: 1.5fr 1fr; }
+.c-h2 { grid-template-columns: 1.25fr 1fr; }
+.side { display: grid; gap: 16px; align-content: start; }
+.side .card { padding: 20px 26px; }
+.side .n { font-size: 46px; font-weight: 700; color: var(--ink); line-height: 1.05; }
+.side .t { font-size: 19px; color: var(--muted); margin-top: 6px; line-height: 1.35; }
+.def { display: grid; grid-template-columns: 190px 1fr; gap: 18px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--hair); }
+.def:last-child { border-bottom: none; }
+.def .k { font-size: 20px; font-weight: 700; color: var(--navy); }
+.def p { font-size: 20px; line-height: 1.38; }
+.scope { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.scope .col { border-radius: 12px; padding: 14px 16px; font-size: 18px; line-height: 1.4; }
+.scope .in { background: var(--good-bg); }
+.scope .out { background: var(--crit-bg); }
+.scope .h { font-size: 15px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
+.scope .in .h { color: var(--good-ink); }
+.scope .out .h { color: var(--crit-ink); }
+.pipe { display: grid; gap: 10px; }
+.pipe .ps { display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: center; font-size: 19px; line-height: 1.35; }
+.pipe .ps i { font-style: normal; width: 40px; height: 40px; border-radius: 50%; background: var(--navy-soft); color: var(--navy); font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.cmp.e2 td, .cmp.e2 th { padding-left: 8px; padding-right: 8px; }
+.fam.wan { grid-template-columns: repeat(4, 1fr); margin-top: 22px; }
+.fam.wan .img { aspect-ratio: 416 / 240; }
+.fam.wan .img img { object-position: 50% 50%; }
+.fam.wan figcaption { padding: 12px 16px 14px; }
+@media print {
+  @page { size: 1920px 1080px; margin: 0; }
+  html, body { height: auto; overflow: visible; background: none; }
+  .stage { position: static; transform: none; width: 1920px !important; height: auto !important; }
+  .slide { display: flex !important; position: relative; width: 1920px; height: 1080px; break-after: page; }
+  .timer, .keys { display: none !important; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor" opacity=".16"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3.5l9.5 17h-19z" fill="currentColor" opacity=".16"/><path d="M12 3.5l9.5 17h-19z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17.3" r="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor" opacity=".16"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5.2l3.4 2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-fwd" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor" opacity=".16"/><path d="M8 12h8M13 8.5l3.5 3.5-3.5 3.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 34 20"><path d="M2 10h27M22 3l8 7-8 7" fill="none" stroke="#8b93a1" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6.5" y="5.5" width="4" height="13" rx="1" fill="currentColor"/><rect x="13.5" y="5.5" width="4" height="13" rx="1" fill="currentColor"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24"><path d="M5 12a7 7 0 1 0 2.1-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M5 4.5V8.5h4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+
+<div class="stage" id="stage">
+
+<!-- 1 · Portada -->
+<section class="slide cover">
+  <div class="inst">Universidad San Francisco de Quito</div>
+  <div class="kicker">Proyecto Integrador · Entregable 2</div>
+  <h1>Medidor calibrado de consistencia física para el ajuste fino de modelos generativos de video a partir de texto</h1>
+  <div class="authors">
+    <div><span class="who">Martín Montero</span><span class="role">Autor</span></div>
+    <div><span class="who">Daniel Riofrío</span><span class="role">Tutor</span></div>
+  </div>
+  <div class="meta">Avance del 27 de septiembre al 25 de octubre de 2026 · actividades A2 a A14</div>
+  <div class="strip">
+    <div class="tile"><img src="assets/f1_projectile.webp" alt="Vuelo libre"><span class="tag">Vuelo libre · R5</span></div>
+    <div class="tile"><img src="assets/f2_bounce.webp" alt="Rebote"><span class="tag">Rebote · R3a</span></div>
+    <div class="tile"><img src="assets/f3_collision.webp" alt="Choque"><span class="tag">Choque · R3b</span></div>
+    <div class="tile"><img src="assets/f4_stack.webp" alt="Pila"><span class="tag">Pila · R2</span></div>
+    <div class="tile"><img src="assets/f5_contact.webp" alt="Contacto"><span class="tag">Contacto · R1</span></div>
+  </div>
+</section>
+
+<!-- 2 · Actividades -->
+<section class="slide">
+  <div class="kicker">Actividades del Entregable 2</div>
+  <h2>El trabajo pasó al servidor y el verificador quedó calibrado</h2>
+  <div class="acts e2">
+    <div class="act"><span class="code">A3·A4·A5</span><div><div class="name">Servidor H200</div><div class="res">80,6 s por clip, 920 clips y detector nuevo</div></div><span class="status st-good"><svg><use href="#i-check"/></svg>Hecha</span></div>
+    <div class="act"><span class="code">A9</span><div><div class="name">Tamaño, incertidumbre y abstención</div><div class="res">Error del tamaño de 0,12 frente a 0,30</div></div><span class="status st-good"><svg><use href="#i-check"/></svg>Hecha</span></div>
+    <div class="act"><span class="code">A6·A7</span><div><div class="name">Diagnóstico y correcciones</div><div class="res">Error por etapa en 426 clips y revisión global</div></div><span class="status st-good"><svg><use href="#i-check"/></svg>Hecha</span></div>
+    <div class="act"><span class="code">A10</span><div><div class="name">Comparación con el VLM (H2)</div><div class="res">Primera comparación: el VLM queda arriba</div></div><span class="status st-warn"><svg><use href="#i-warn"/></svg>Preliminar</span></div>
+    <div class="act"><span class="code">A8</span><div><div class="name">Calibración del verificador (H1)</div><div class="res">9 de 9 con la verdad, 2 de 9 con lo percibido</div></div><span class="status st-good"><svg><use href="#i-check"/></svg>Hecha</span></div>
+    <div class="act"><span class="code">A11·A13</span><div><div class="name">Ajuste fino, demostración y H3</div><div class="res">A11 lista y probada con un ensayo corto</div></div><span class="status st-info"><svg><use href="#i-fwd"/></svg>Adelantada</span></div>
+    <div class="act"><span class="code">A2·A14</span><div><div class="name">Estado del arte y documento</div><div class="res">Introducción y propuesta por primera vez</div></div><span class="status st-good"><svg><use href="#i-check"/></svg>Hecha</span></div>
+    <div class="note">Según la planificación corregida, para este entregable tocaban las actividades A3 a A10, y todas quedaron terminadas.</div>
+  </div>
+  <div class="timeline">
+    <div class="tl"><div class="dot"></div><div class="d">27 de septiembre</div><div class="w">30 % · Entregable 1 (A1 a A7)</div></div>
+    <div class="tl now"><div class="dot"></div><div class="d">25 de octubre</div><div class="w">60 % · Calibración y comparación (A8 a A10)</div></div>
+    <div class="tl"><div class="dot"></div><div class="d">23 de noviembre</div><div class="w">90 % · Generador afinado (A11 a A13)</div></div>
+    <div class="tl"><div class="dot"></div><div class="d">16 de diciembre</div><div class="w">Documento final (A14)</div></div>
+  </div>
+</section>
+
+<!-- 3 · A3 A4 A5 -->
+<section class="slide">
+  <div class="kicker"><span class="code">A3 · A4 · A5</span>El trabajo pasa al servidor</div>
+  <h2>En la H200 se midió el costo, se generó el conjunto completo y se cambió el detector</h2>
+  <div class="three">
+    <div class="card">
+      <div class="chead"><span class="code">A3</span><h3>Costo por clip</h3></div>
+      <div class="pair">
+        <div><div class="n">80,6 s</div><div class="t">por clip: generar, extraer y revisar</div></div>
+        <div><div class="n">≈45</div><div class="t">clips por hora en una GPU</div></div>
+      </div>
+      <svg class="chart" viewBox="0 0 520 112" width="100%" role="img" aria-label="Reparto del tiempo por clip">
+        <rect x="10" y="8" width="404.7" height="46" rx="5" fill="#2a78d6"/>
+        <rect x="414.7" y="8" width="88.6" height="46" fill="#eb6834"/>
+        <rect x="503.3" y="8" width="6.7" height="46" fill="#1baf7a"/>
+        <text x="26" y="38" font-size="19" font-weight="700" fill="#fff">Generar con Wan2.1 · 65,24 s</text>
+        <g font-size="16" fill="#69707d">
+          <rect x="10" y="78" width="14" height="14" rx="3" fill="#eb6834"/><text x="32" y="91">Extraer 14,29 s</text>
+          <rect x="200" y="78" width="14" height="14" rx="3" fill="#1baf7a"/><text x="222" y="91">Revisar 1,08 s</text>
+        </g>
+      </svg>
+      <ul class="plain">
+        <li>Wan2.1-T2V-1.3B a 50 pasos: 1,241 s por paso y 63 GB de memoria como máximo</li>
+        <li>Cuatro videos en paralelo tardan casi lo mismo que uno, unos 65,65 s cada uno</li>
+      </ul>
+      <ul class="plain push">
+        <li>200 textos con 4 videos cada uno: unas 18 h en una GPU o 4,5 h en cuatro</li>
+        <li>El ajuste fino entra en el cronograma</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="chead"><span class="code">A4</span><h3>Conjunto completo</h3></div>
+      <div class="pair">
+        <div><div class="n">920</div><div class="t">clips: 200 limpios y 720 con un error inyectado</div></div>
+        <div><div class="n">865</div><div class="t">extraídos en el modo de mayor calidad</div></div>
+      </div>
+      <svg class="chart" viewBox="0 0 520 100" width="100%" role="img" aria-label="Reparto por escena entre calibración y evaluación">
+        <rect x="10" y="8" width="246.2" height="46" rx="5" fill="#15305a"/>
+        <rect x="258.2" y="8" width="251.8" height="46" rx="5" fill="#c3c2b7"/>
+        <text x="26" y="38" font-size="18" font-weight="700" fill="#fff">Calibración · 426</text>
+        <text x="274" y="38" font-size="18" font-weight="700" fill="#0e1a2b">Evaluación · 439</text>
+        <text x="10" y="86" font-size="16" fill="#69707d">100 escenas en cada parte, sin ninguna escena compartida</text>
+      </svg>
+      <div class="chips">
+        <span class="chip">40 escenas por familia</span>
+        <span class="chip">Iluminación HDRI</span>
+        <span class="chip">PISA <i>· 360 reales</i></span>
+        <span class="chip">Physics-IQ <i>· 54 reales</i></span>
+      </div>
+      <p class="sub">El render tomó 1,12 s por cuadro a 256 por 256 píxeles.</p>
+      <p class="sub push">Kubric corre en el servidor con udocker, y una corrida de prueba dio archivos idénticos byte a byte a los locales.</p>
+    </div>
+    <div class="card">
+      <div class="chead"><span class="code">A5</span><h3>Detector nuevo</h3></div>
+      <div class="ba">
+        <div class="row before"><span class="tagx">Antes</span><span>Todos los objetos en una sola consulta: fusionaba etiquetas como "cube cylinder".</span></div>
+        <div class="row after"><span class="tagx">Ahora</span><span>Una consulta por objeto y una asignación óptima entre detecciones y objetos.</span></div>
+      </div>
+      <svg class="chart" viewBox="0 0 520 232" width="100%" role="img" aria-label="Detector antes y después">
+        <g font-size="17" fill="#0e1a2b" font-weight="600"><text x="0" y="18">Objetos encontrados</text><text x="0" y="94">Etiqueta correcta</text><text x="0" y="170">Coincidencia de la caja</text></g>
+        <rect x="0" y="28" width="323.2" height="18" rx="3" fill="#c3c2b7"/><rect x="0" y="50" width="388.4" height="18" rx="3" fill="#2a78d6"/>
+        <rect x="0" y="104" width="356.8" height="18" rx="3" fill="#c3c2b7"/><rect x="0" y="126" width="391.2" height="18" rx="3" fill="#2a78d6"/>
+        <rect x="0" y="180" width="290.8" height="18" rx="3" fill="#c3c2b7"/><rect x="0" y="202" width="341.2" height="18" rx="3" fill="#2a78d6"/>
+        <g font-size="16" fill="#69707d"><text x="331" y="42">0,808</text><text x="365" y="118">0,892</text><text x="299" y="194">0,727</text></g>
+        <g font-size="17" font-weight="700" fill="#0e1a2b"><text x="396" y="64">0,971</text><text x="399" y="140">0,978</text><text x="349" y="216">0,853</text></g>
+      </svg>
+      <p class="sub push">108 clips de 25 escenas no usadas. La mejora es de 0,163, con un intervalo entre 0,066 y 0,259.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · A6 A7 -->
+<section class="slide">
+  <div class="kicker"><span class="code">A6 · A7</span>Diagnóstico y correcciones</div>
+  <h2>Detectar y segmentar ya funciona; el error está en el 3D y en los contactos</h2>
+  <p class="lead" style="font-size:22px; margin-top:12px">Diagnóstico en el modo de mayor calidad sobre los 426 clips de calibración; se muestran seis de las ocho etapas del extractor.</p>
+  <div class="a6">
+    <div class="stages">
+      <div class="srow"><span class="i">1</span><span class="s">Detección</span><span class="m">objetos encontrados (precisión 0,996)</span><span class="v">94,8 %</span><span class="status st-good"><svg><use href="#i-check"/></svg>Bien</span></div>
+      <div class="srow"><span class="i">2</span><span class="s">Seguimiento</span><span class="m">coincidencia de la máscara (IoU)</span><span class="v">0,933</span><span class="status st-good"><svg><use href="#i-check"/></svg>Bien</span></div>
+      <div class="srow"><span class="i">3</span><span class="s">Profundidad</span><span class="m">desviación del error por objeto, con colas pesadas</span><span class="v">0,39</span><span class="status st-warn"><svg><use href="#i-warn"/></svg>Limita</span></div>
+      <div class="srow"><span class="i">4</span><span class="s">Cámara</span><span class="m">error de la gravedad con cámara nivelada (σ supuesta 10°)</span><span class="v">24,3°</span><span class="status st-warn"><svg><use href="#i-warn"/></svg>Limita</span></div>
+      <div class="srow"><span class="i">6</span><span class="s">Escala</span><span class="m">error mediano del tamaño aprendido de Objectron (A9)</span><span class="v">0,12</span><span class="status st-good"><svg><use href="#i-check"/></svg>Bien</span></div>
+      <div class="srow"><span class="i">8</span><span class="s">Contactos</span><span class="m">encontrados aun con todo lo anterior exacto</span><span class="v">27 %</span><span class="status st-crit"><svg><use href="#i-x"/></svg>Crítica</span></div>
+      <div class="note" style="margin-top:6px">Cinco de las nueve medidas dependen de los contactos, y lo que más pesa en el error es el estado 3D de cada objeto.</div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:14px">
+      <h3 class="ct">A7: pruebas y revisión global</h3>
+      <p class="sub">Cada revisión tiene casos construidos a mano cuya respuesta se calcula dentro de la prueba, sin el simulador.</p>
+      <table class="cmp e2">
+        <thead><tr><th>Falla encontrada</th><th>Antes</th><th>Después</th></tr></thead>
+        <tbody>
+          <tr><td>Rebotes fuera de tolerancia</td><td>35 de 40</td><td class="hl">0</td></tr>
+          <tr><td>Choques fuera de tolerancia</td><td>11 de 11</td><td class="hl">0</td></tr>
+          <tr><td>Saltos en clips limpios</td><td>0,18 a 0,32</td><td class="hl">&lt; 0,003</td></tr>
+          <tr><td>Cilindro mal apoyado</td><td>0,1014</td><td class="hl">0</td></tr>
+        </tbody>
+      </table>
+      <p class="sub">La causa de los rebotes y choques: PyBullet guarda la velocidad con medio paso de desfase, y un error de 0,05 se medía como 0,0436. Se volvieron a renderizar 175 clips.</p>
+      <div class="pair push">
+        <div><div class="n">3439</div><div class="t">pruebas automáticas en la versión congelada</div></div>
+        <div><div class="n">29</div><div class="t">límites aceptados y documentados</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · A8 -->
+<section class="slide">
+  <div class="kicker"><span class="code">A8</span>Calibración del verificador</div>
+  <h2>Con la verdad del simulador todo cumple; con lo percibido, al principio nada tenía peso</h2>
+  <div class="cols2 c-a8">
+    <div class="card">
+      <h3 class="ct">Qué se calibra en cada revisión</h3>
+      <div>
+        <div class="def"><span class="k">Umbral</span><p>Cuantil conformal al 0,05 del clip limpio de cada escena, con al menos 19 escenas.</p></div>
+        <div class="def"><span class="k">Falsas alarmas</span><p>Validación cruzada agrupada por escena, con intervalo de Clopper-Pearson.</p></div>
+        <div class="def"><span class="k">Límite</span><p>Curva logística del tamaño de error que se detecta con fiabilidad del 95 %.</p></div>
+        <div class="def"><span class="k">Peso</span><p>Cota inferior del índice de Youden, es decir, cuánto separa clips con error de clips limpios.</p></div>
+        <div class="def"><span class="k">H1</span><p>τ<sub>b</sub> de Kendall con bootstrap de escenas: se cumple si su cota inferior y la del Youden son mayores que cero.</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="ct">Calibración con los datos corregidos y el detector nuevo</h3>
+      <svg class="chart" viewBox="0 0 860 300" width="100%" role="img" aria-label="Revisiones que cumplen H1 con la verdad y con lo percibido">
+        <g font-size="15" fill="#69707d" text-anchor="middle">
+          <text x="186" y="24">R1</text><text x="264" y="24">R2</text><text x="342" y="24">R3a</text><text x="420" y="24">R3b</text><text x="498" y="24">Salto</text><text x="576" y="24">Desap.</text><text x="654" y="24">Tamaño</text><text x="732" y="24">R5a</text><text x="810" y="24">R5b</text>
+        </g>
+        <g font-size="20" font-weight="600" fill="#0e1a2b"><text x="0" y="78">Verdad</text><text x="0" y="168">Percibido</text></g>
+        <g fill="#e7f5e9" stroke="#0b6b2e" stroke-width="1.5">
+          <rect x="150" y="40" width="72" height="64" rx="10"/><rect x="228" y="40" width="72" height="64" rx="10"/><rect x="306" y="40" width="72" height="64" rx="10"/><rect x="384" y="40" width="72" height="64" rx="10"/><rect x="462" y="40" width="72" height="64" rx="10"/><rect x="540" y="40" width="72" height="64" rx="10"/><rect x="618" y="40" width="72" height="64" rx="10"/><rect x="696" y="40" width="72" height="64" rx="10"/><rect x="774" y="40" width="72" height="64" rx="10"/>
+        </g>
+        <g font-size="28" font-weight="700" fill="#0b6b2e" text-anchor="middle">
+          <text x="186" y="82">✓</text><text x="264" y="82">✓</text><text x="342" y="82">✓</text><text x="420" y="82">✓</text><text x="498" y="82">✓</text><text x="576" y="82">✓</text><text x="654" y="82">✓</text><text x="732" y="82">✓</text><text x="810" y="82">✓</text>
+        </g>
+        <g fill="#ecebe5" stroke="#c3c2b7" stroke-width="1.5">
+          <rect x="150" y="130" width="72" height="64" rx="10"/><rect x="228" y="130" width="72" height="64" rx="10"/><rect x="306" y="130" width="72" height="64" rx="10"/><rect x="384" y="130" width="72" height="64" rx="10"/><rect x="540" y="130" width="72" height="64" rx="10"/><rect x="618" y="130" width="72" height="64" rx="10"/><rect x="696" y="130" width="72" height="64" rx="10"/><rect x="774" y="130" width="72" height="64" rx="10"/>
+        </g>
+        <rect x="462" y="130" width="72" height="64" rx="10" fill="#fdf3dc" stroke="#7a5200" stroke-width="1.5"/>
+        <text x="498" y="160" font-size="15" font-weight="700" fill="#7a5200" text-anchor="middle">τ 0,46</text>
+        <text x="498" y="180" font-size="13" fill="#7a5200" text-anchor="middle">sin peso</text>
+        <text x="0" y="236" font-size="18" fill="#2b3444">Con la verdad, τ<tspan font-size="13" dy="4">b</tspan><tspan dy="-4"> entre 0,88 y 1,00 en las nueve medidas.</tspan></text>
+        <text x="0" y="266" font-size="18" fill="#2b3444">Con lo percibido, los nueve pesos quedaron en cero; solo los saltos mostraban tendencia.</text>
+        <text x="0" y="294" font-size="16" fill="#69707d">Repetir toda la cadena en GPU dio el mismo cuadro: el dispositivo no explica la pérdida.</text>
+      </svg>
+      <div class="note push">Las revisiones funcionan cuando reciben la geometría correcta, y la señal se pierde en la percepción. Por eso lo siguiente fue mejorar el extractor y no las revisiones.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · Iteraciones -->
+<section class="slide">
+  <div class="kicker"><span class="code">A8</span>Mejora de la percepción</div>
+  <h2>Cuatro iteraciones con reglas fijadas de antemano llevaron de 0 a 2 revisiones que cumplen</h2>
+  <div class="cols2 c-it">
+    <div class="card" style="justify-content:center">
+      <svg class="chart" viewBox="0 0 860 430" width="100%" role="img" aria-label="Revisiones que cumplen y área bajo la curva por iteración">
+        <text x="0" y="26" font-size="22" font-weight="700" fill="#0e1a2b">Revisiones que cumplen (de 9)</text>
+        <g stroke="#e1e0d9" stroke-width="1"><line x1="30" y1="270" x2="420" y2="270"/><line x1="30" y1="180" x2="420" y2="180"/><line x1="30" y1="90" x2="420" y2="90"/></g>
+        <line x1="30" y1="360" x2="420" y2="360" stroke="#c3c2b7" stroke-width="1.5"/>
+        <g font-size="18" fill="#898781" text-anchor="end"><text x="22" y="365">0</text><text x="22" y="275">3</text><text x="22" y="185">6</text><text x="22" y="95">9</text></g>
+        <rect x="105" y="330" width="46" height="30" rx="3" fill="#2a78d6"/><rect x="170" y="330" width="46" height="30" rx="3" fill="#2a78d6"/><rect x="235" y="330" width="46" height="30" rx="3" fill="#2a78d6"/>
+        <rect x="300" y="300" width="46" height="60" rx="3" fill="#15305a"/>
+        <rect x="370" y="90" width="46" height="270" rx="3" fill="#c3c2b7"/>
+        <g font-size="21" font-weight="700" fill="#0e1a2b" text-anchor="middle"><text x="63" y="352">0</text><text x="128" y="322">1</text><text x="193" y="322">1</text><text x="258" y="322">1</text><text x="323" y="292">2</text><text x="393" y="82">9</text></g>
+        <g font-size="19" fill="#69707d" text-anchor="middle"><text x="63" y="388">base</text><text x="128" y="388">it1</text><text x="193" y="388">it2</text><text x="258" y="388">it3</text><text x="323" y="388" font-weight="700" fill="#0e1a2b">it4</text><text x="393" y="388">verdad</text></g>
+
+        <text x="470" y="26" font-size="22" font-weight="700" fill="#0e1a2b">Área bajo la curva ROC</text>
+        <g stroke="#e1e0d9" stroke-width="1"><line x1="480" y1="306" x2="850" y2="306"/><line x1="480" y1="252" x2="850" y2="252"/><line x1="480" y1="198" x2="850" y2="198"/><line x1="480" y1="144" x2="850" y2="144"/></g>
+        <line x1="480" y1="360" x2="850" y2="360" stroke="#c3c2b7" stroke-width="1.5"/>
+        <g font-size="18" fill="#898781" text-anchor="end"><text x="472" y="365">0,5</text><text x="472" y="311">0,6</text><text x="472" y="257">0,7</text><text x="472" y="203">0,8</text><text x="472" y="149">0,9</text></g>
+        <text x="508" y="342" font-size="17" fill="#898781" text-anchor="middle">sin nota</text>
+        <polyline points="565,313.6 630,313.6 695,315.2 760,295.2" fill="none" stroke="#2a78d6" stroke-width="3" stroke-linejoin="round"/>
+        <line x1="760" y1="314.6" x2="760" y2="275.8" stroke="#15305a" stroke-width="3"/>
+        <g fill="#2a78d6" stroke="#fff" stroke-width="2.5"><circle cx="565" cy="313.6" r="7"/><circle cx="630" cy="313.6" r="7"/><circle cx="695" cy="315.2" r="7"/></g>
+        <circle cx="760" cy="295.2" r="8" fill="#15305a" stroke="#fff" stroke-width="2.5"/>
+        <circle cx="830" cy="141.3" r="7" fill="#c3c2b7" stroke="#fff" stroke-width="2.5"/>
+        <g font-size="19" fill="#0e1a2b" text-anchor="middle"><text x="565" y="296">0,586</text><text x="630" y="296">0,586</text><text x="695" y="340">0,583</text><text x="760" y="266" font-weight="700">0,620</text><text x="830" y="128">0,905</text></g>
+        <g font-size="19" fill="#69707d" text-anchor="middle"><text x="500" y="388">base</text><text x="565" y="388">it1</text><text x="630" y="388">it2</text><text x="695" y="388">it3</text><text x="760" y="388" font-weight="700" fill="#0e1a2b">it4</text><text x="830" y="388">verdad</text></g>
+        <text x="0" y="426" font-size="17" fill="#898781">Fuera de pliegue en calibración. La barra de it4 es su intervalo de confianza.</text>
+      </svg>
+    </div>
+    <div class="card">
+      <table class="cmp e2">
+        <thead><tr><th>Iteración</th><th>Qué cambió</th><th>Cumplen</th></tr></thead>
+        <tbody>
+          <tr><td>it1</td><td>Tres errores: objetos tapados contados como desaparecidos, un filtro que no dejaba ninguna caída y un factor de incertidumbre mal calculado</td><td class="hl">1</td></tr>
+          <tr><td>it2</td><td>Gravedad con GeoCalib: 5,2° de error en lugar de 22 a 28°</td><td class="hl">1</td></tr>
+          <tr><td>it3</td><td>Profundidad más grande y contactos por movimiento</td><td class="hl">1</td></tr>
+          <tr><td>it4</td><td>Saltos medidos contra el ruido de su trayectoria y tamaño contra los otros objetos</td><td class="hl">2</td></tr>
+        </tbody>
+      </table>
+      <p class="sub">En la it4 la ganancia viene de cambiar la forma de medir y no de percibir mejor, y así se reporta.</p>
+      <div class="note push">Todo se ajustó con las escenas de calibración. Los conjuntos de evaluación quedaron sellados, con cada consulta registrada, y se miraron una sola vez con la versión congelada el 21 de octubre.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · Versión congelada -->
+<section class="slide">
+  <div class="kicker"><span class="code">A8</span>Versión congelada y escenas de evaluación</div>
+  <h2>La predicción escrita antes de mirar se cumplió: 9 de 9 con la verdad y 2 de 9 con lo percibido</h2>
+  <div class="cols2 c-ev">
+    <div class="card">
+      <div class="legend" style="margin-top:0"><span><i style="background:#c3c2b7"></i>Verdad del simulador</span><span><i style="background:var(--good)"></i>Percibido, cumple</span><span><i style="background:#2a78d6"></i>Percibido, ordena pero no separa</span><span><i style="background:var(--crit)"></i>Percibido, sin tendencia</span></div>
+      <svg class="chart" viewBox="0 0 1000 545" width="100%" role="img" aria-label="Tau b de Kendall por revisión en las escenas de evaluación">
+        <g stroke="#e1e0d9" stroke-width="1"><line x1="250" y1="34" x2="250" y2="505"/><line x1="425" y1="34" x2="425" y2="505"/><line x1="775" y1="34" x2="775" y2="505"/><line x1="950" y1="34" x2="950" y2="505"/></g>
+        <line x1="600" y1="34" x2="600" y2="505" stroke="#898781" stroke-width="1.5"/>
+        <line x1="250" y1="505" x2="950" y2="505" stroke="#c3c2b7" stroke-width="1.5"/>
+        <g font-size="16" fill="#898781" text-anchor="middle"><text x="250" y="530">−1</text><text x="425" y="530">−0,5</text><text x="600" y="530">0</text><text x="775" y="530">0,5</text><text x="950" y="530">1</text></g>
+        <g font-size="19" fill="#0e1a2b">
+          <text x="0" y="66">R1 Interpenetración</text><text x="0" y="118">R2 Equilibrio</text><text x="0" y="170">R3a Restitución</text><text x="0" y="222">R3b Energía</text>
+          <text x="0" y="274" font-weight="700" fill="#0b6b2e">R4 Saltos ✓</text><text x="0" y="326" font-weight="700" fill="#0b6b2e">R4 Desaparición ✓</text>
+          <text x="0" y="378">R4 Tamaño</text><text x="0" y="430">R5a Forma de la caída</text><text x="0" y="482">R5b Valor de g</text>
+        </g>
+        <g stroke-width="3" stroke-linecap="round">
+          <line x1="397.7" y1="60" x2="665.8" y2="60" stroke="#c3c2b7"/>
+          <line x1="435.9" y1="112" x2="718.7" y2="112" stroke="#c3c2b7"/>
+          <line x1="290.6" y1="164" x2="833.5" y2="164" stroke="#c3c2b7"/>
+          <line x1="754.7" y1="268" x2="888.8" y2="268" stroke="#0ca30c"/>
+          <line x1="825.4" y1="320" x2="899.6" y2="320" stroke="#0ca30c"/>
+          <line x1="776.1" y1="372" x2="905.2" y2="372" stroke="#9db8e0"/>
+          <line x1="584.6" y1="424" x2="735.5" y2="424" stroke="#9db8e0"/>
+          <line x1="630.1" y1="476" x2="820.2" y2="476" stroke="#9db8e0"/>
+        </g>
+        <g fill="#c3c2b7"><circle cx="910.5" cy="60" r="8"/><circle cx="924.1" cy="112" r="8"/><circle cx="923.4" cy="164" r="8"/><circle cx="929.4" cy="216" r="8"/><circle cx="905.6" cy="268" r="8"/><circle cx="950" cy="320" r="8"/><circle cx="945.8" cy="372" r="8"/><circle cx="930.4" cy="424" r="8"/><circle cx="937.1" cy="476" r="8"/></g>
+        <g stroke="#fff" stroke-width="2.5">
+          <circle cx="533.9" cy="60" r="9" fill="#d03b3b"/><circle cx="560.5" cy="112" r="9" fill="#d03b3b"/><circle cx="589.2" cy="164" r="9" fill="#d03b3b"/>
+          <circle cx="825.4" cy="268" r="9" fill="#0ca30c"/><circle cx="863.9" cy="320" r="9" fill="#0ca30c"/>
+          <circle cx="848.5" cy="372" r="9" fill="#2a78d6"/><circle cx="658.1" cy="424" r="9" fill="#2a78d6"/><circle cx="730.9" cy="476" r="9" fill="#2a78d6"/>
+        </g>
+        <text x="612" y="222" font-size="16" fill="#898781">sin casos decididos</text>
+      </svg>
+      <p class="sub" style="margin-top:-4px">τ<sub>b</sub> de Kendall con su intervalo, vista principal de 317 clips y 72 escenas. El tamaño y el valor de g ordenan los niveles, pero su índice de Youden no se separa de cero.</p>
+    </div>
+    <div class="side">
+      <div class="card"><div class="n">≤ 2,9 %</div><div class="t">falsas alarmas en los clips limpios de evaluación, en todas las revisiones percibidas</div></div>
+      <div class="card"><div class="n">2 de 2</div><div class="t">revisiones predichas antes de mirar que cumplen; con todas las escenas sale lo mismo</div></div>
+      <div class="card" style="display:flex;flex-direction:column;gap:12px">
+        <div class="label">Video real: Physics-IQ y PISA</div>
+        <div class="scope">
+          <div class="col in"><div class="h">Se quedan</div>Equilibrio, 0 de 235<br>Desaparición, 3 de 410<br>Valor de g, 1 de 21<br>Restitución, 0 de 2</div>
+          <div class="col out"><div class="h">Quedan fuera</div>Interpenetración, 21 de 47<br>Saltos, 202 de 410<br>Tamaño, 17 de 38<br>Forma de la caída, por su regla</div>
+        </div>
+        <p class="sub" style="font-size:17px">Una revisión sale del video real si sus falsas alarmas ahí tienen una cota inferior mayor que 0,10.</p>
+      </div>
+      <p class="sub" style="font-size:18px">La prueba que decide H1 es un conjunto nuevo de Kubric, sellado y todavía en extracción.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 8 · A9 -->
+<section class="slide">
+  <div class="kicker"><span class="code">A9</span>Tamaño, incertidumbre y abstención</div>
+  <h2>El tamaño aprendido de Objectron baja el error a menos de la mitad</h2>
+  <div class="three">
+    <div class="card">
+      <div class="chead"><h3>Estimador de tamaño</h3></div>
+      <p class="sub">En Kubric los tamaños se sortean, así que se aprendió de Objectron, con videos reales medidos en metros: un modelo por cada una de sus 9 clases.</p>
+      <svg class="chart" viewBox="0 0 520 214" width="100%" role="img" aria-label="Error mediano del tamaño y de la escala">
+        <text x="0" y="16" font-size="16" fill="#69707d">Tamaño, 603 objetos de prueba</text>
+        <g font-size="17" fill="#0e1a2b" text-anchor="end"><text x="140" y="49">Valor fijo</text><text x="140" y="85">Modelo</text><text x="140" y="167">Ángulo 60°</text><text x="140" y="203">Ángulo real</text></g>
+        <rect x="150" y="30" width="300" height="26" rx="4" fill="#c3c2b7"/><rect x="150" y="66" width="120" height="26" rx="4" fill="#0ca30c"/>
+        <text x="0" y="128" font-size="16" fill="#69707d">Escala de punta a punta, 10 videos</text>
+        <rect x="150" y="148" width="270" height="26" rx="4" fill="#eb6834"/><rect x="150" y="184" width="110" height="26" rx="4" fill="#0ca30c"/>
+        <g font-size="18" font-weight="700" fill="#0e1a2b"><text x="458" y="50">0,30</text><text x="278" y="86">0,12</text><text x="428" y="168">0,27</text><text x="268" y="204">0,11</text></g>
+      </svg>
+      <p class="sub push">La mayor fuente de error de la escala ya no es el tamaño sino el ángulo de visión supuesto. La escala solo entra en el valor de g.</p>
+    </div>
+    <div class="card">
+      <div class="chead"><h3>Incertidumbre recalibrada</h3></div>
+      <p class="sub">Qué parte de los casos cae dentro del intervalo. La línea negra marca lo que debería cubrir.</p>
+      <svg class="chart" viewBox="0 0 520 262" width="100%" role="img" aria-label="Cobertura de la incertidumbre antes y después de recalibrar">
+        <g font-size="19" fill="#0e1a2b" text-anchor="end"><text x="140" y="45">Piloto E1, 2σ</text><text x="140" y="100">Antes, 1σ</text><text x="140" y="155">Después, 1σ</text><text x="140" y="210">Después, 2σ</text></g>
+        <circle cx="345.7" cy="40" r="9" fill="#d03b3b"/>
+        <rect x="430" y="88" width="56" height="18" rx="4" fill="#fab219"/>
+        <rect x="356.5" y="143" width="35" height="18" rx="4" fill="#0ca30c"/>
+        <rect x="416" y="198" width="66.5" height="18" rx="4" fill="#fab219"/>
+        <g stroke="#0e1a2b" stroke-width="3"><line x1="482.5" y1="24" x2="482.5" y2="56"/><line x1="389.1" y1="81" x2="389.1" y2="113"/><line x1="389.1" y1="136" x2="389.1" y2="168"/><line x1="483.9" y1="191" x2="483.9" y2="223"/></g>
+        <g font-size="18" font-weight="700" fill="#0e1a2b" text-anchor="middle"><text x="320" y="24">55,9 %</text><text x="430" y="80" text-anchor="end">80 a 96 %</text><text x="352" y="135" text-anchor="end">59 a 69 %</text><text x="412" y="190" text-anchor="end">76 a 95 %</text></g>
+        <line x1="150" y1="240" x2="500" y2="240" stroke="#c3c2b7" stroke-width="1.5"/>
+        <g font-size="16" fill="#898781" text-anchor="middle"><text x="150" y="258">0 %</text><text x="325" y="258">50 %</text><text x="490" y="258">100 %</text></g>
+      </svg>
+      <p class="sub push">A una desviación quedó bien. A dos, seis de las nueve medidas siguen por debajo de 0,90, porque el error tiene colas más pesadas que una normal.</p>
+    </div>
+    <div class="card">
+      <div class="chead"><h3>Abstención</h3></div>
+      <p class="sub">Una revisión se abstiene si su intervalo cruza el umbral o si le falta una entrada.</p>
+      <div class="pair">
+        <div><div class="n">0,325</div><div class="t">cobertura: parte de los casos en que responde</div></div>
+        <div><div class="n">0,079</div><div class="t">riesgo: parte de esas respuestas que falla</div></div>
+      </div>
+      <p class="quote">El riesgo es bajo porque el verificador responde en un tercio de los casos, y por eso los dos números se reportan juntos.</p>
+      <ul class="plain push">
+        <li>Recalibrar la incertidumbre redujo el área bajo la curva de riesgo y cobertura en 0,306</li>
+        <li>Con la versión congelada no se agrega banda alrededor del umbral (k* = 0)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 9 · A10 -->
+<section class="slide">
+  <div class="kicker"><span class="code">A10</span>Comparación con el VLM en VideoPhy (H2)</div>
+  <h2>En esta primera comparación el verificador todavía no supera al VLM</h2>
+  <div class="cols2 c-h2">
+    <div class="card">
+      <h3 class="ct">Exactitud frente a las etiquetas humanas, 383 videos de prueba</h3>
+      <svg class="chart" viewBox="0 0 900 360" width="100%" role="img" aria-label="Exactitud del VLM, del verificador y de las reglas constantes, y desglose de los 383 videos">
+        <line x1="290" y1="16" x2="290" y2="222" stroke="#c3c2b7" stroke-width="1.5"/>
+        <line x1="550" y1="16" x2="550" y2="222" stroke="#e1e0d9" stroke-width="1" stroke-dasharray="5 5"/>
+        <text x="550" y="12" font-size="14" fill="#898781" text-anchor="middle">0,5</text><text x="900" y="12" font-size="14" fill="#898781" text-anchor="end">barra negra: intervalo al 95 %</text>
+        <g font-size="19" fill="#0e1a2b" text-anchor="end"><text x="278" y="52">VLM de referencia</text><text x="278" y="102">Siempre implausible</text><text x="278" y="152" font-weight="700">Verificador</text><text x="278" y="202">Siempre plausible</text></g>
+        <rect x="290" y="30" width="338" height="32" rx="4" fill="#15305a"/>
+        <rect x="290" y="80" width="309.4" height="32" rx="4" fill="#c3c2b7"/>
+        <rect x="290" y="130" width="230.9" height="32" rx="4" fill="#d03b3b"/>
+        <rect x="290" y="180" width="210.6" height="32" rx="4" fill="#c3c2b7"/>
+        <g stroke="#fff" stroke-width="7" stroke-linecap="round"><line x1="597.3" y1="46" x2="658.7" y2="46"/><line x1="489.2" y1="146" x2="553.1" y2="146"/></g><g stroke="#0e1a2b" stroke-width="2.5"><line x1="597.3" y1="46" x2="658.7" y2="46"/><line x1="597.3" y1="38" x2="597.3" y2="54"/><line x1="658.7" y1="38" x2="658.7" y2="54"/><line x1="489.2" y1="146" x2="553.1" y2="146"/><line x1="489.2" y1="138" x2="489.2" y2="154"/><line x1="553.1" y1="138" x2="553.1" y2="154"/></g>
+        <g font-size="19" font-weight="700" fill="#0e1a2b"><text x="670" y="53">0,650</text><text x="610" y="103">0,595</text><text x="565" y="153">0,444</text><text x="512" y="203">0,405</text></g>
+        <text x="0" y="262" font-size="18" font-weight="700" fill="#0e1a2b">Qué hizo el verificador con los 383 videos</text>
+        <rect x="0" y="276" width="176.2" height="40" rx="4" fill="#d03b3b"/>
+        <rect x="178" y="276" width="681.9" height="40" fill="#e4e3dd"/>
+        <rect x="861.9" y="276" width="38.1" height="40" rx="4" fill="#c3c2b7"/>
+        <text x="16" y="302" font-size="18" font-weight="700" fill="#fff">75 decide</text>
+        <text x="200" y="302" font-size="18" fill="#0e1a2b">291 se abstiene: ninguna revisión con peso queda decidida</text>
+        <text x="0" y="344" font-size="16" fill="#69707d">Los 75 que decide: todos "implausible"</text>
+        <text x="900" y="344" font-size="16" fill="#69707d" text-anchor="end">17 ya no estaban disponibles</text>
+      </svg>
+      <p class="sub push">La abstención cuenta como plausible. El corte se fijó antes en 619 videos de desarrollo y la prueba se corrió una sola vez con la versión congelada.</p>
+    </div>
+    <div class="card">
+      <table class="cmp e2">
+        <thead><tr><th>Métrica</th><th>Verificador</th><th>VLM</th></tr></thead>
+        <tbody>
+          <tr><td>Exactitud</td><td>0,444</td><td class="hl">0,650</td></tr>
+          <tr><td>Exactitud balanceada</td><td>0,502</td><td class="hl">0,642</td></tr>
+          <tr><td>κ de Cohen</td><td>0,003</td><td class="hl">0,281</td></tr>
+          <tr><td>Área bajo la curva</td><td>0,478</td><td class="hl">0,676</td></tr>
+          <tr><td>Solo en los 75 que decide</td><td>0,600</td><td>0,653</td></tr>
+        </tbody>
+      </table>
+      <p class="sub">McNemar da p menor que 0,001 a favor del VLM. La diferencia observada, de 20,6 puntos, duplica la mínima que la prueba podía detectar, así que no es falta de muestra.</p>
+      <ul class="plain">
+        <li>Muchas fallas que señalan las personas, como un objeto que se deforma, caen fuera de lo que miden las revisiones</li>
+        <li>En video generado el verificador casi nunca llega a pronunciarse</li>
+      </ul>
+      <div class="note push">Se presenta como una comparación preliminar y se repite con la percepción mejorada en un conjunto sellado nuevo.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 · A11 a A13 -->
+<section class="slide">
+  <div class="kicker"><span class="code">A11 · A12 · A13</span>Ajuste fino, demostración y H3</div>
+  <h2>El ajuste fino quedó listo y probado en el servidor antes de lo previsto</h2>
+  <p class="lead" style="font-size:22px; margin-top:12px">Cuatro candidatos de Wan2.1-1.3B para el mismo texto: <i>"dos cubos verdes de metal se acercan sobre un piso de concreto y chocan"</i>. Ensayo del 18 de octubre, con notas provisionales.</p>
+  <div class="fam wan">
+    <figure><div class="img"><img src="assets/wan_collision_k0.webp" alt="Candidato 1"></div><figcaption><div class="fname">Candidato 1</div><div class="err">Aparecen piezas nuevas; el verificador no decide ninguna revisión y se descarta</div></figcaption></figure>
+    <figure><div class="img"><img src="assets/wan_collision_k1.webp" alt="Candidato 2"></div><figcaption><div class="fname">Candidato 2</div><div class="err">Los dos cubos se multiplican hasta formar una fila</div></figcaption></figure>
+    <figure><div class="img"><img src="assets/wan_collision_k2.webp" alt="Candidato 3"></div><figcaption><div class="fname">Candidato 3</div><div class="err">Hay cubos de más al fondo y uno da un salto</div></figcaption></figure>
+    <figure><div class="img"><img src="assets/wan_collision_k3.webp" alt="Candidato 4"></div><figcaption><div class="fname">Candidato 4</div><div class="err">Los cubos salen huecos y sueltan partículas al chocar</div></figcaption></figure>
+  </div>
+  <div class="a4bottom">
+    <div class="card">
+      <div class="label">Cómo se arma el entrenamiento</div>
+      <div class="pipe" style="margin-top:12px">
+        <div class="ps"><i>1</i><span>Se forma un par con el mejor y el peor solo si la diferencia de nota supera un margen y la incertidumbre</span></div>
+        <div class="ps"><i>2</i><span>Flow-DPO fuera de línea con un adaptador LoRA de rango 32</span></div>
+      </div>
+    </div>
+    <div class="card kpi2">
+      <div class="kpi"><div class="n">7 + 1</div><div class="t">pares de entrenamiento y validación en el ensayo</div></div>
+      <div class="kpi"><div class="n">73,4 s</div><div class="t">para generar un video con el adaptador, tras 5 pasos</div></div>
+    </div>
+    <div class="card">
+      <div class="label">A12 y A13</div>
+      <p class="sub" style="margin-top:10px; color:var(--text)">Demostración con un reporte por revisión sobre dos escenas fijas: dominós y torre de bloques. H3 se prueba con Wilcoxon contra el modelo base eligiendo el mejor de 8, con el juez de VideoPhy-2 si coincide en el 90 % de 50 videos revisados a mano.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 11 · Cierre -->
+<section class="slide">
+  <div class="kicker">Lectura de los resultados y próximos pasos</div>
+  <h2>La física funciona; el cuello de botella sigue siendo la percepción</h2>
+  <div class="close">
+    <div class="take">
+      <div class="tk good"><span class="ic"><svg><use href="#i-check"/></svg></span><div><h4>Las revisiones son correctas</h4><p>Con la verdad del simulador cumplen las nueve, en calibración y en evaluación.</p></div></div>
+      <div class="tk good"><span class="ic"><svg><use href="#i-check"/></svg></span><div><h4>La calibración generaliza</h4><p>La predicción se cumplió y las falsas alarmas no pasaron del 2,9 %.</p></div></div>
+      <div class="tk bad"><span class="ic"><svg><use href="#i-x"/></svg></span><div><h4>La percepción todavía limita</h4><p>Cumplen 2 de 9 con lo percibido, y en H2 el VLM queda arriba.</p></div></div>
+      <div class="tk next"><span class="ic"><svg><use href="#i-fwd"/></svg></span><div><h4>El diagnóstico dice qué mejorar</h4><p>La profundidad de cada objeto y los contactos, de los que dependen cinco medidas.</p></div></div>
+    </div>
+    <div class="card">
+      <h3 class="ct">Lo que falta para cerrar H1 y H2</h3>
+      <table class="cmp e2" style="margin-top:12px">
+        <thead><tr><th>Pendiente</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td>Conjunto nuevo de Kubric para la prueba final de H1</td><td class="hl">Sellado, en extracción</td></tr>
+          <tr><td>Control real nuevo: vistas laterales de Physics-IQ y Objectron</td><td class="hl">Sellado</td></tr>
+          <tr><td>Quinta iteración: profundidad y contactos</td><td>Hasta el 10 de noviembre</td></tr>
+          <tr><td>Separar a mano los errores de la comparación con el VLM</td><td>Por hacer</td></tr>
+          <tr><td>H2 repetida en un conjunto sellado nuevo</td><td>Después de la quinta iteración</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="road">
+    <div class="rl">Próximos entregables</div>
+    <div class="cols">
+      <div class="rm"><div class="rh"><span class="d">Noviembre</span><span class="pct">Percepción</span></div><h4>Cerrar H1 y H2</h4>
+        <ul><li><span class="code">A8</span>Prueba final de H1 en el conjunto nuevo</li><li><span class="code">A10</span>Comparación repetida con el VLM</li></ul>
+        <div class="hy">Responde H1 y H2</div></div>
+      <div class="rm"><div class="rh"><span class="d">23 de noviembre</span><span class="pct">90 %</span></div><h4>Generador afinado</h4>
+        <ul><li><span class="code">A11</span>Piloto completo del ajuste fino</li><li><span class="code">A12</span>Demostración: dominós y torre de bloques</li><li><span class="code">A13</span>Contra el modelo original y el mejor de ocho</li></ul>
+        <div class="hy">Responde H3</div></div>
+      <div class="rm last"><div class="rh"><span class="d">16 de diciembre</span><span class="pct">100 %</span></div><h4>Documento final</h4>
+        <ul><li><span class="code">A14</span>Resultados finales y limitaciones</li><li><span class="code">A14</span>Repositorio público con la versión evaluada</li></ul>
+        <div class="hy">Cierre del proyecto</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="timer" id="timer" title="T: iniciar o pausar · R: reiniciar · H: ocultar">
+  <span class="t" id="tt">0:00</span><span class="muted">/ 4:00</span>
+  <span class="bar"><i id="tb"></i></span>
+  <button id="tplay" aria-label="Iniciar o pausar"><svg><use href="#i-play"/></svg></button>
+  <button id="treset" aria-label="Reiniciar"><svg><use href="#i-reset"/></svg></button>
+  <button id="tkeys" class="kbtn" aria-label="Atajos de teclado" title="Atajos (?)">?</button>
+</div>
+
+<div class="keys" id="keys" role="dialog" aria-label="Atajos de teclado">
+  <h4>Atajos de teclado</h4>
+  <table>
+    <tr><td><kbd>→</kbd><kbd>Espacio</kbd><kbd>Enter</kbd></td><td>Siguiente diapositiva</td></tr>
+    <tr><td><kbd>←</kbd><kbd>Retroceso</kbd></td><td>Diapositiva anterior</td></tr>
+    <tr><td><kbd>Inicio</kbd><kbd>Fin</kbd></td><td>Primera / última</td></tr>
+    <tr><td>Clic derecha / izquierda</td><td>Siguiente / anterior</td></tr>
+    <tr><td><kbd>F</kbd></td><td>Pantalla completa</td></tr>
+    <tr><td><kbd>T</kbd></td><td>Iniciar o pausar el temporizador</td></tr>
+    <tr><td><kbd>R</kbd></td><td>Reiniciar el temporizador</td></tr>
+    <tr><td><kbd>H</kbd></td><td>Ocultar o mostrar el temporizador</td></tr>
+    <tr><td><kbd>?</kbd><kbd>K</kbd></td><td>Mostrar u ocultar esta ayuda</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Cerrar esta ayuda</td></tr>
+  </table>
+</div>
+
+</div>
+
+<script>
+(function () {
+  var stage = document.getElementById('stage');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length, cur = 0;
+
+  slides.forEach(function (s, i) {
+    var p = document.createElement('div'); p.className = 'progress'; p.style.width = ((i + 1) / total * 100) + '%'; s.appendChild(p);
+    if (i === 0) return;
+    var f = document.createElement('div'); f.className = 'foot';
+    f.innerHTML = '<span>Martín Montero · Entregable 2</span><span>' + (i + 1) + ' / ' + total + '</span>';
+    s.appendChild(f);
+  });
+
+  function capMedia() {
+    stage.style.transform = 'none'; stage.style.width = '1920px'; stage.style.height = '1080px';
+    slides.forEach(function (sl) {
+      var was = sl.classList.contains('active');
+      sl.classList.add('active');
+      sl.querySelectorAll('svg.chart').forEach(function (e) { e.style.maxHeight = Math.round(e.getBoundingClientRect().height) + 'px'; });
+      sl.querySelectorAll('.strip .tile, .fam .img').forEach(function (e) { e.style.height = Math.round(e.getBoundingClientRect().height) + 'px'; e.style.aspectRatio = 'auto'; });
+      if (!was) sl.classList.remove('active');
+    });
+    stage.style.transform = '';
+  }
+  function fit() {
+    var w = window.innerWidth, h = window.innerHeight, s = Math.min(w / 1920, h / 1080);
+    stage.style.width = (w / s) + 'px';
+    stage.style.height = (h / s) + 'px';
+    stage.style.setProperty('--scale', s);
+  }
+  function show(i) {
+    cur = Math.max(0, Math.min(total - 1, i));
+    slides.forEach(function (s, j) { s.classList.toggle('active', j === cur); });
+    if (location.hash !== '#' + (cur + 1)) history.replaceState(null, '', '#' + (cur + 1));
+  }
+  function fromHash() { var n = parseInt(location.hash.slice(1), 10); show(isNaN(n) ? 0 : n - 1); }
+
+  var timer = document.getElementById('timer'), tt = document.getElementById('tt'), tb = document.getElementById('tb'), tplay = document.getElementById('tplay');
+  var LIMIT = 240, elapsed = 0, startedAt = null, tick = null;
+  function seconds() { return elapsed + (startedAt ? (Date.now() - startedAt) / 1000 : 0); }
+  function render() {
+    var s = seconds(), m = Math.floor(s / 60), r = Math.floor(s % 60);
+    tt.textContent = m + ':' + (r < 10 ? '0' : '') + r;
+    tb.style.width = Math.min(100, s / LIMIT * 100) + '%';
+    timer.classList.toggle('late', s >= 210 && s < LIMIT);
+    timer.classList.toggle('over', s >= LIMIT);
+    tplay.innerHTML = '<svg><use href="#i-' + (startedAt ? 'pause' : 'play') + '"/></svg>';
+  }
+  function start() { if (!startedAt) { startedAt = Date.now(); tick = setInterval(render, 250); render(); } }
+  function pause() { if (startedAt) { elapsed = seconds(); startedAt = null; clearInterval(tick); render(); } }
+  function toggle() { startedAt ? pause() : start(); }
+  function reset() { pause(); elapsed = 0; render(); }
+  tplay.addEventListener('click', function (e) { e.stopPropagation(); this.blur(); toggle(); });
+  document.getElementById('treset').addEventListener('click', function (e) { e.stopPropagation(); this.blur(); reset(); });
+  timer.addEventListener('click', function (e) { e.stopPropagation(); });
+  var keys = document.getElementById('keys');
+  function toggleKeys(open) { keys.classList.toggle('open', open === undefined ? !keys.classList.contains('open') : open); }
+  document.getElementById('tkeys').addEventListener('click', function (e) { e.stopPropagation(); this.blur(); toggleKeys(); });
+  keys.addEventListener('click', function (e) { e.stopPropagation(); });
+
+  function next() { if (cur === 0) start(); show(cur + 1); }
+  function prev() { show(cur - 1); }
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var k = e.key;
+    if (k === '?' || k === 'k' || k === 'K') { e.preventDefault(); toggleKeys(); return; }
+    if (k === 'Escape' && keys.classList.contains('open')) { toggleKeys(false); return; }
+    if (k === 'ArrowRight' || k === 'PageDown' || k === ' ' || k === 'Enter') { e.preventDefault(); next(); }
+    else if (k === 'ArrowLeft' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); prev(); }
+    else if (k === 'Home') show(0);
+    else if (k === 'End') show(total - 1);
+    else if (k === 'f' || k === 'F') { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+    else if (k === 't' || k === 'T') toggle();
+    else if (k === 'r' || k === 'R') reset();
+    else if (k === 'h' || k === 'H') timer.classList.toggle('hidden');
+  });
+  document.addEventListener('click', function (e) { if (keys.classList.contains('open')) { toggleKeys(false); return; } if (e.clientX > window.innerWidth * 0.5) next(); else prev(); });
+  window.addEventListener('resize', fit);
+  window.addEventListener('hashchange', fromHash);
+  capMedia(); fit(); fromHash(); render();
+})();
+</script>
+</body>
+</html>

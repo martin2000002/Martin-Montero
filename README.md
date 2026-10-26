@@ -51,7 +51,22 @@ npm run new -- "Notas" --md         # crea content/decks/notas/deck.md
 Cada línea que tenga solo `---` separa una diapositiva. Para el layout usa `<!-- layout: center -->`,
 y para imágenes guárdalas junto al `.md` y enlázalas así: `![](./foto.jpg)`.
 
-### 3. Archivos (PDF, PowerPoint, imágenes, video)
+### 3. Presentación HTML ya hecha
+
+Si la presentación ya es un `.html` autónomo (con su propio JS/CSS e imágenes al lado), copia la carpeta a
+`content/html/<slug>/` con el HTML renombrado a `index.html`. Se publica **tal cual, byte a byte**, en
+`/p/<slug>/`, así que funciona igual que abriéndola desde el disco (sus atajos, temporizador, etc.).
+
+```
+content/html/entregable-2/
+  index.html        ← la presentación
+  assets/…          ← lo que referencia con rutas relativas
+  meta.json         ← opcional: { "title", "description", "date" } para la tarjeta del inicio
+```
+
+Ejemplo en vivo: https://martin-montero.web.app/p/entregable-2/
+
+### 4. Archivos (PDF, PowerPoint, imágenes, video)
 
 Arrástralos a `content/files/` (se pueden usar subcarpetas). Aparecen solos en la página de inicio.
 
